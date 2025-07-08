@@ -3,9 +3,16 @@ import "./placeholder.css" // Importing the CSS file for styling
 import { StoreContext } from '../../context/StoreContext';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import axios from 'axios';
+import paymentSuccess from '../PaymentSuccess/PaymentSuccess.jsx';
+import paymentFailed from '../PaymentFailed/PaymentFailed.jsx';
 // This component will serve as the home page for the application
 const PlaceOrder = () => {
   const {getTotalCartAmount,token,food_list,cartItems,url} = useContext(StoreContext);
+  const [esewaData, setEsewaData] =useState(null);
+   const userId = "USER123"; // Replace with real user ID
+  const amount = getTotalCartAmount();
+
 
 const [data, setData] = React.useState({
     firstName: '',
@@ -42,6 +49,25 @@ else if (getTotalCartAmount() === 0) {
 }
   },[token])
   
+    const handlePlaceOrder = async () => {
+    const orderPayload = {   
+      items: cartItems,
+      amount,
+      address: "Bharatpur", // Replace with user input
+      userId,
+    };
+
+    try {
+      const res = await axios.post("http://localhost:4000/api/order/place", orderPayload);
+      const { esewaURL, payload } = res.data;
+
+      setEsewaData({ esewaURL, payload });
+    } catch (error) {
+      console.log("Order placing failed", error);
+    }
+  };
+
+  
   // Function to calculate the total amount in the cart
   return (
     <form onSubmit={PlaceOrder}className='place-order'>
@@ -68,7 +94,7 @@ else if (getTotalCartAmount() === 0) {
         <input name='phone' onChange={onChangeHandler} value={data.phone} type="text" placeholder='Phone ' />
 
  <div className="cart-total">
-          <h2>Cart Totals</h2>
+          <h2>Cart Totals</h2>  
           <div>
                 <div className="cart-total-details">
               <p>Subtotal</p>
@@ -85,7 +111,7 @@ else if (getTotalCartAmount() === 0) {
               <b>{getTotalCartAmount()===0?0:getTotalCartAmount()+2}</b>
             </div>
           </div>
-           <button>PROCEED TO PAYMENT</button>
+           <button type="submit">PROCEED TO PAYMENT</button>
         </div>
 
       </div>

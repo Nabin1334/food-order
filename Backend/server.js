@@ -16,7 +16,7 @@ import mongoose from 'mongoose';
 dotenv.config();
 //app config
 const app = express()
-const PORT = 4000
+const PORT =  process.env.PORT|| 4000;
 
 //middleware 
 app.use(express.json())
@@ -26,8 +26,13 @@ app.use(cors())
 connectDB();
 //api endpoints
 
-app.use('/api/food', foodRouter)
+const express = require('express');
+const cors = require('cors');
+const paymentRoutes = require('./routes/payment');
 
+
+app.use('/api/food', foodRouter)
+app.use('/api/food', orderRouter);
 app.use('/images', express.static('uploads'))
 app.use('/api/users',userRouter)
 app.use('/api/cart',cartRouter)
@@ -38,9 +43,10 @@ app.use('/api/cart',cartRouter)
 app.get('/', (req, res) => {
     res.send('API  running')
 })
-
+app.use('/api/order', orderRoutes); // Ensure orderRoutes is imported correctly
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
-})
+});
+
 // Export the app for testing or further configuration
 export default app;

@@ -1,9 +1,17 @@
 import orderModel from '../models/orderModel.js';
 import userModel from '../models/userModel.js';
 import userOrders from '../models/userModel.js';
+import { Esewa } from 'esewa-node-sdk';
+import axios from 'axios';
 
 
-const esewa = new (process.env.Esewa_SCRIPT || 'https://uat.esewa.com.np/epay/main')('8gBm/:&EnhH.1/q');
+const esewa = new (process.env.Esewa_SCRIPT || 'https://esewa.com.np/epay/main')('8gBm/:&EnhH.1/q');
+
+// GET /api/order/esewa-success
+res.redirect(`http://localhost:5173/payment-success?orderId=${order._id}`);
+// On failure
+res.redirect("http://localhost:5173/payment-failed");
+
 
 // Generate payment token
 const paymentToken = await esewa.initPayment({
@@ -80,6 +88,40 @@ const placeOrder = async (req, res) => {
     }
 }
 
+
+// ESEWA SUCCESS
+export const esewaSuccess = async (req, res) => {
+  const { amt, refId, pid } = req.query;
+
+  try {
+    const verify = await axios.post('https://rc-epay.esewa.com.np/api/epay/verify/v1', {
+      amt,
+      refId,
+      pid,
+      scd: 'EPAYTEST',
+    });
+
+    if (verify.data.status === 'COMPLETE') {
+      const order = await orderModel.findOne({ productId: pid });
+
+      if (order) {
+        order.payment = true;
+        order.paymentStatus = 'completed';
+        order.refId = refId;
+        await order.save();
+      }
+
+      return res.redirect(`http://localhost:5173/payment-success?orderId=${order._id}`);
+    } else {
+      return res.redirect('http://localhost:5173/payment-failed');
+    }
+  } catch (error) {
+    console.log(error);
+    res.redirect('http://localhost:5173/payment-failed');
+  }
+};
+
+
 // Update payment status
 const updatePayment = async (req, res) => {
     try {
@@ -145,5 +187,7 @@ await orderModel.findByIdAndUpdate(req.body.orderId, { status: req.body.status }
     }
 
 }
+
+
 export {placeOrder, verifyOrder, userOrders,listOrders, updatePayment, userOrder, listAllOrders, updateStatus};
 // Function to verify order payment
