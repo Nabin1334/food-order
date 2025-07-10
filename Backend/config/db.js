@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export const connectDB = async () => {
+ const connectDB = async () => {
   await mongoose
     .connect(
       "mongodb+srv://nabinduwadi12345:nabinduwadi12345@cluster0.93fqnla.mongodb.net/food-Order"
@@ -11,5 +11,5 @@ export const connectDB = async () => {
       process.exit(1);
     });
 };
-
+ export default connectDB
 //mongodb+srv://nabinduwadi12345:foodorder@food-order.wv3ibyd.mongodb.net/?retryWrites=true&w=majority&appName=food-order

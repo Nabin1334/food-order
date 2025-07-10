@@ -1,23 +1,22 @@
 import jwt from 'jsonwebtoken';
-// import { User } from '../models/user.js';
-
 
 const authMiddleware = async (req, res, next) => {
-const {token} = req.headers;
+  const authHeader = req.headers.authorization;
 
-    if (!token) {
-        return res.json({ success:false,message: ' authorization denied' });
-    }
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ success: false, message: "Authorization denied" });
+  }
 
-    try {
-        const  token_decode = jwt.verify(token, process.env.JWT_SECRET);
-        req.body.userId = token_decode.id; // Attach user info to request object
-        next(); // Proceed to the next middleware or route handler
-    } catch (error) {
-        console.log('Error in authMiddleware:', error);
-        
-        res.json({ message: 'Token is not valid' });
-    }
-}
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.body.userId = decoded.id;
+    next();
+  } catch (error) {
+    console.log("Error in authMiddleware:", error);
+    res.status(401).json({ success: false, message: "Token is not valid" });
+  }
+};
 
 export default authMiddleware;
