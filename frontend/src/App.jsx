@@ -6,8 +6,7 @@ import Cart from "./pages/Cart/cart";
 import PlaceOrder from "./pages/PlaceOrder/PlaceOrder";
 import "./App.css";
 
-import paymentSuccess from '../PaymentSuccess/PaymentSuccess.jsx';
-import paymentFailed from '../PaymentFailed/PaymentFailed.jsx';
+
 
 import Loginpopup from "./components/Loginpopup/Loginpopup";
 import Footer from "./components/Footer/Footer";
@@ -15,8 +14,6 @@ import { StoreContext } from './context/StoreContext';
 // import { useContext } from 'react'
 import  MyOrders from "./pages/MyOrders/MyOrders.jsx";
 
-import PaymentSuccess from "./pages/PaymentSuccess/PaymentSuccess.jsx";
-import PaymentFailed from "./pages/PaymentFailed/PaymentFailed.jsx";
 
 
 
@@ -35,8 +32,7 @@ const App = () => {
           <Route path="/order" element={<PlaceOrder />} />
           {/* <Route path="/verify" element={<Verify />} /> */}
               
-          <Route path="/payment-success" element={<PaymentSuccess/>} />
-          <Route path="/payment-failed" element={<PaymentFailed />} />
+         
           <Route path="/myorders" element={<MyOrders />} />
           
         </Routes>

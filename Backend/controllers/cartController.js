@@ -54,28 +54,6 @@ const getCart = async (req, res) => {
 
 }
 
-exports.initiateEsewaPayment = async (req, res) => {
-  try {
-    const { amount, productId } = req.body;
-
-    const payload = {
-      amt: amount,
-      psc: 0,
-      pdc: 0,
-      txAmt: 0,
-      tAmt: amount,
-      pid: productId,
-      scd: "EPAYTEST", // Replace with your merchant code in production
-      su: "http://localhost:5173/esewa-success", // Frontend route after success
-      fu: "http://localhost:5173/esewa-fail", // Frontend route after fail
-    };
-
-    res.json({ esewaURL: "https://rc-epay.esewa.com.np/api/epay/main/v2/form", payload });
-  } catch (err) {
-    console.error("Esewa payment initiation error:", err);
-    res.status(500).json({ message: "Error initiating payment" });
-  }
-};
 
 
 export { addToCart, removeFromCart, getCart }
