@@ -34,7 +34,7 @@ const Remove = ({ url }) => {
       setLoading(false);
     }
   };
-
+//function for removing the item
   const handleRemove = async (id) => {
     try {
     
@@ -55,6 +55,8 @@ const Remove = ({ url }) => {
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
+
+
 
   return (
     <div className="remove-container">
