@@ -34,7 +34,7 @@ const Remove = ({ url }) => {
       setLoading(false);
     }
   };
-//function for removing the item
+
   const handleRemove = async (id) => {
     try {
     
