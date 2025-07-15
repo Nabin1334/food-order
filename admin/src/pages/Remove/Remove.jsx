@@ -21,6 +21,7 @@ const Remove = ({ url }) => {
   const fetchFoodItems = async () => {
     try {
       const response = await axios.get(`${url}/api/food/list`);
+      console.log("response from backend:",response)
       if (response.data.success) {
         setFoodItems(response.data.data);
       } else {
@@ -36,7 +37,9 @@ const Remove = ({ url }) => {
 
   const handleRemove = async (id) => {
     try {
+    
       const response = await axios.delete(`${url}/api/food/remove/${id}`);
+    
       if (response.data.success) {
         toast.success("Food item removed successfully");
         setFoodItems((prevItems) => prevItems.filter((item) => item._id !== id));
