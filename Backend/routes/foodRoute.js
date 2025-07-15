@@ -1,5 +1,9 @@
 import { Router } from 'express';
 import multer from 'multer';
+import { getSortedFoods } from "../controllers/foodController.js";
+import mergeSort from '../utils/mergeShort.js';
+import foodModel from '../models/foodModel.js';
+
 import {
   addFood,
   listFood,
@@ -24,5 +28,8 @@ const upload = multer({ storage });
 router.post('/add', upload.single('image'), addFood);
 router.get('/list', listFood);
 router.post('/remove', removeFood);
+// Route to get sorted food items
+router.get("/sort", getSortedFoods);
+
 
 export default router;

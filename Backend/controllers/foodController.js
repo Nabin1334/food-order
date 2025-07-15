@@ -1,4 +1,5 @@
 import foodModel from "../models/foodModel.js";
+import mergeSort from "../utils/mergeShort.js";
 import fs from "fs";
 import path from "path";
 
@@ -61,6 +62,22 @@ const removeFood = async (req, res) => {
     res.json({ success: false, message: "Failed to remove food item" });
   }
 };
+
+//add algorithm to merge and sort food items
+export const getSortedFoods = async (req, res) => {
+  try {
+    const key = req.query.sortBy || "price"; // Get sorting key from URL (default: price)
+
+    const foodItems = await foodModel.find({});
+    const sortedFoods = mergeSort(foodItems, key); // Use merge sort
+
+    res.json({ success: true, data: sortedFoods });
+  } catch (err) {
+    console.log("Error sorting foods:", err);
+    res.status(500).json({ success: false, message: "Sorting failed" });
+  }
+};
+
 
 export { addFood, listFood, removeFood };
 // export default { addFood, listFood };
