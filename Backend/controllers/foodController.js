@@ -1,3 +1,4 @@
+import { error } from "console";
 import foodModel from "../models/foodModel.js";
 import mergeSort from "../utils/mergeShort.js";
 import fs from "fs";
@@ -69,12 +70,12 @@ export const getSortedFoods = async (req, res) => {
   try {
     const key = req.query.sortBy || "price"; // Get sorting key from URL (default: price)
 
-    const foodItems = await foodModel.find({});
+    const foodItems = await foodModel.find();
     const sortedFoods = mergeSort(foodItems, key); // Use merge sort
 
-    res.json({ success: true, data: sortedFoods });
+    res.json(200).json({ success: true, data: sortedFoods });
   } catch (err) {
-    console.log("Error sorting foods:", err);
+    console.log("Error sorting foods:", error);
     res.status(500).json({ success: false, message: "Sorting failed" });
   }
 };
