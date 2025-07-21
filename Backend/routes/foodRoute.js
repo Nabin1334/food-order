@@ -36,7 +36,7 @@ router.post('/add', addFood);
 router.get('/sort', getSortedFoods);
 router.put('/update/:id', updateFood);
 router.delete('/delete/:id', removeFood);
-
+ 
 
 // Routes
 router.post('/add', upload.single('image'), addFood);
