@@ -1,9 +1,5 @@
-import mergeSort from '../utils/algorithms/mergeSort.js';
-import { getFoodById, updateFood, deleteFood } from '../controllers/foodController.js';
-import foodController from '../controllers/foodController.js';
-import foodModel from "../models/foodModel.js";
-import fs from "fs";
-
+import events from 'events';
+events.defaultMaxListeners = 20;
 
 
 //  mergeSort.js
@@ -37,4 +33,3 @@ function merge(left, right, key) {
 
 
 export default mergeSort;
-export { mergeSort };
