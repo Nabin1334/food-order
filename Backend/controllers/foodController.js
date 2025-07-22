@@ -66,7 +66,7 @@ const removeFood = async (req, res) => {
 };
 
 //add algorithm to merge and sort food items
-export const getSortedFoods = async (req, res) => {
+ const getSortedFoods = async (req, res) => {
   try {
     const key = req.query.sortBy || "price"; // Get sorting key from URL (default: price)
 
@@ -81,5 +81,5 @@ export const getSortedFoods = async (req, res) => {
 };
 
 
-export { addFood, listFood, removeFood };
+export { addFood, listFood, removeFood ,getSortedFoods };
 // export default { addFood, listFood };
