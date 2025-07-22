@@ -9,7 +9,6 @@ import userModel from '../models/userModel.js';
 import {
    getAllFoods,
   addFood,
-  getSortedFoods,
   listFood,
   updateFood,
   deleteFood,
@@ -50,6 +49,5 @@ router.get("/sort", getSortedFoods);
 // or keep both if both are needed
 router.get('/some-other-route', someOtherHandler);
 
->>>>>>> b159b0b6847e8d41eb608fb2f3f4e4ee73bea2e1
 
 export default router;
