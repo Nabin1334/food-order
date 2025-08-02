@@ -1,6 +1,6 @@
 /* Header container with background image and optional overlay */
 .header {
-    height: 30vw;
+    height: 27vw;
     margin: 35px auto;
     background: url('./header_img.png' )  no-repeat;
     background-size: contain;

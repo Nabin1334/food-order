@@ -1,5 +1,6 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
+//import {food_list} from '../assets/assets'; // Uncomment this line if you want to use a static food list
 // import { food_list } from '../assets/assets';
 export const StoreContext = createContext(null);
 
