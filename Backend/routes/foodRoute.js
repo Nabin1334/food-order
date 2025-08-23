@@ -7,6 +7,7 @@ import {
   removeFood,
   getSortedFoods
 } from '../controllers/foodController.js';
+import Dashboard from '../../admin/src/pages/Dashboard/Dashboard.jsx';
 
 const router = Router();
 
@@ -26,6 +27,7 @@ const upload = multer({ storage });
  
 
 // Routes
+router.get('/dashboard', Dashboard);
 router.post('/add', upload.single('image'), addFood);
 router.get('/list', listFood);
 

@@ -9,11 +9,12 @@ import cartRouter from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
 import paymentRoute from "./routes/payment.js";
 import mergeSort from './utils/mergeShort.js';
-
+import dashboardRoute from './routes/dashboardRoute.js';
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+const dashboardRoutes = require('./routes/dashboardRoute');
 
 app.use(cors());
 app.use(express.json());
@@ -42,6 +43,7 @@ app.use('/api/cart', cartRouter);
 app.use('/images', express.static('uploads'));
 app.use("/api", paymentRoute);
 app.use('/api/food', mergeSort);
+app.use('/api/dashboard', dashboardRoute);
 app.get('/', (req, res) => {
   res.send('API running');
 });
