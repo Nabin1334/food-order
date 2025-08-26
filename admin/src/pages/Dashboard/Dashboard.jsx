@@ -4,7 +4,8 @@ import axios from "axios"
 import "./Dashboard.css"
 import assets from '../../assets/assets';
 import { toast } from "react-toastify";
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+
 
 const Dashboard = ({ url }) => {
   const [stats, setStats] = useState({
