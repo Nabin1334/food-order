@@ -8,6 +8,7 @@ import Orders from "./pages/Orders/Orders";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Remove from "./pages/Remove/Remove";
+import Dashboard from "./pages/Dashboard/Dashboard"; 
 //import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 const App = () => {
