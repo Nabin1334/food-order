@@ -14,7 +14,11 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+<<<<<<< HEAD
 //const dashboardRoutes = require('./routes/dashboardRoute');
+=======
+
+>>>>>>> 69ce5c034951b623785efe2710101c1210445943
 
 app.use(cors());
 app.use(express.json());
