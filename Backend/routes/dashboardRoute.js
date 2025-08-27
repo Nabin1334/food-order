@@ -1,28 +1,28 @@
-const express = require("express")
-const orderModel = require("../models/orderModel")
-const userModel = require("../models/userModel")
-const foodModel = require("../models/foodModel")
+import express from "express";
+import orderModel from "../models/orderModel.js";
+import userModel from "../models/userModel.js";
+import foodModel from "../models/foodModel.js";
 
-const dashboardRouter = express.Router()
+const dashboardRouter = express.Router();
 
 // Get dashboard statistics
 dashboardRouter.get("/stats", async (req, res) => {
   try {
-    const today = new Date()
-    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()))
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+    const today = new Date();
+    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
     // Total statistics
-    const totalOrders = await orderModel.countDocuments()
-    const totalUsers = await userModel.countDocuments()
-    const totalProducts = await foodModel.countDocuments()
+    const totalOrders = await orderModel.countDocuments();
+    const totalUsers = await userModel.countDocuments();
+    const totalProducts = await foodModel.countDocuments();
 
     // Revenue calculations
     const totalRevenue = await orderModel.aggregate([
       { $match: { paymentStatus: "completed" } },
       { $group: { _id: null, total: { $sum: "$finalAmount" } } },
-    ])
+    ]);
 
     const todayRevenue = await orderModel.aggregate([
       {
@@ -32,10 +32,10 @@ dashboardRouter.get("/stats", async (req, res) => {
         },
       },
       { $group: { _id: null, total: { $sum: "$finalAmount" } } },
-    ])
+    ]);
 
     // Order statistics by status
-    const ordersByStatus = await orderModel.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }])
+    const ordersByStatus = await orderModel.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]);
 
     // Popular products
     const popularProducts = await orderModel.aggregate([
@@ -50,10 +50,10 @@ dashboardRouter.get("/stats", async (req, res) => {
       },
       { $sort: { count: -1 } },
       { $limit: 5 },
-    ])
+    ]);
 
     // Recent orders
-    const recentOrders = await orderModel.find().populate("userId", "name email").sort({ createdAt: -1 }).limit(10)
+    const recentOrders = await orderModel.find().populate("userId", "name email").sort({ createdAt: -1 }).limit(10);
 
     // Monthly revenue trend
     const monthlyRevenue = await orderModel.aggregate([
@@ -71,7 +71,7 @@ dashboardRouter.get("/stats", async (req, res) => {
         },
       },
       { $sort: { _id: 1 } },
-    ])
+    ]);
 
     res.json({
       success: true,
@@ -86,12 +86,12 @@ dashboardRouter.get("/stats", async (req, res) => {
         recentOrders,
         monthlyRevenue,
       },
-    })
+    });
   } catch (error) {
-    console.log(error)
-    res.json({ success: false, message: "Error fetching dashboard data" })
+    console.log(error);
+    res.json({ success: false, message: "Error fetching dashboard data" });
   }
-})
+});
 
 // Get user analytics
 dashboardRouter.get("/user-analytics", async (req, res) => {
@@ -106,11 +106,11 @@ dashboardRouter.get("/user-analytics", async (req, res) => {
           avgSpentPerUser: { $avg: "$totalSpent" },
         },
       },
-    ])
+    ]);
 
     const newUsersThisMonth = await userModel.countDocuments({
       createdAt: { $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) },
-    })
+    });
 
     res.json({
       success: true,
@@ -118,11 +118,12 @@ dashboardRouter.get("/user-analytics", async (req, res) => {
         ...userStats[0],
         newUsersThisMonth,
       },
-    })
+    });
   } catch (error) {
-    console.log(error)
-    res.json({ success: false, message: "Error fetching user analytics" })
+    console.log(error);
+    res.json({ success: false, message: "Error fetching user analytics" });
   }
-})
+});
 
-module.exports = dashboardRouter
+
+export default dashboardRouter;

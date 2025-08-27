@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import authmiddleware from '../middleware/auth.js';
- import { placeOrder, userOrder, listAllOrders, updateStatus, verifyToken, getUserOrders} 
+ import { placeOrder, userOrder, listAllOrders, updateStatus,  } 
  from '../controllers/orderController.js';
 
 const router = Router();
@@ -11,7 +11,7 @@ router.get('/list',listAllOrders);
 
 router.post("/status",updateStatus)
 
-router.get('/user/:id', verifyToken, getUserOrders);
+
 
 
 
