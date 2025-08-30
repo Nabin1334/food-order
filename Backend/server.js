@@ -15,11 +15,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-<<<<<<< HEAD
+// <<<<<<< HEAD
 
-=======
+// =======
 //const dashboardRoutes = require('./routes/dashboardRoute');
->>>>>>> 0590bbae2b909c00da4754ea431993ff70c85a5d
+// >>>>>>> 0590bbae2b909c00da4754ea431993ff70c85a5d
 
 
 app.use(cors());
@@ -48,7 +48,7 @@ app.use('/api/users', userRouter);
 app.use('/api/cart', cartRouter);
 app.use('/images', express.static('uploads'));
 app.use("/api", paymentRoute);
-app.use('/api/food', mergeSort);
+// app.use('/api/food', mergeSort);
 app.use('/api/dashboard', dashboardRoute);
 app.get('/', (req, res) => {
   res.send('API running');

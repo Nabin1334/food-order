@@ -72,6 +72,22 @@ const Dashboard = ({ url }) => {
     }
   };
 
+const fetchSortedOrders = async () => {
+  try {
+    const response = await axios.get(url + "/api/dashboard/sorted-orders");
+    console.log("Sorted orders:", response.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+useEffect(() => {
+  fetchStats();
+  fetchRecentOrders();
+  fetchSortedOrders();  // ✅ new API call
+}, []);
+
+
   return (
     <div className="dashboard">
       <h2>Dashboard</h2>
