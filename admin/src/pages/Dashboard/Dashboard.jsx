@@ -3,6 +3,7 @@ import axios from "axios";
 import "./Dashboard.css";
 import assets from "../../assets/assets";
 import { toast } from "react-toastify";
+
 import {
   LineChart,
   Line,
@@ -12,6 +13,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
+import { ShoppingCart, DollarSign, Users, Utensils } from "lucide-react";
 
 const Dashboard = ({ url }) => {
   const [stats, setStats] = useState({

@@ -14,10 +14,12 @@ dashboardRouter.get("/stats", async (req, res) => {
     const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
+    // Total statistics
     const totalOrders = await orderModel.countDocuments();
     const totalUsers = await userModel.countDocuments();
     const totalProducts = await foodModel.countDocuments();
 
+    // Revenue calculations
     const totalRevenue = await orderModel.aggregate([
       { $match: { paymentStatus: "completed" } },
       { $group: { _id: null, total: { $sum: "$finalAmount" } } },
@@ -33,10 +35,12 @@ dashboardRouter.get("/stats", async (req, res) => {
       { $group: { _id: null, total: { $sum: "$finalAmount" } } },
     ]);
 
+    // Order statistics by status
     const ordersByStatus = await orderModel.aggregate([
       { $group: { _id: "$status", count: { $sum: 1 } } }
     ]);
 
+    // Popular products
     const popularProducts = await orderModel.aggregate([
       { $unwind: "$items" },
       {
@@ -51,11 +55,13 @@ dashboardRouter.get("/stats", async (req, res) => {
       { $limit: 5 },
     ]);
 
+    // Recent orders
     const recentOrders = await orderModel.find()
       .populate("userId", "name email")
       .sort({ createdAt: -1 })
       .limit(10);
 
+    // Monthly revenue trend
     const monthlyRevenue = await orderModel.aggregate([
       {
         $match: {
@@ -109,7 +115,9 @@ dashboardRouter.get("/user-analytics", async (req, res) => {
     ]);
 
     const newUsersThisMonth = await userModel.countDocuments({
-      createdAt: { $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) },
+      createdAt: {
+        $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      },
     });
 
     res.json({
@@ -125,15 +133,36 @@ dashboardRouter.get("/user-analytics", async (req, res) => {
   }
 });
 
-// ✅ Sorted orders using mergeSort
+// ✅ Sorted orders by amount (using mergeSort)
 dashboardRouter.get("/sorted-orders", async (req, res) => {
   try {
     const orders = await orderModel.find({});
     const sortedOrders = mergeSort(orders, "finalAmount"); // use your algorithm
-    res.json({ success: true, data: sortedOrders });
+    res.json({ success: true, sortedOrders });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+// // API: sorted orders by amount
+// router.get("/sorted-orders", async (req, res) => {
+//   try {
+//     const orders = await Order.find({});
+//     const sortedOrders = mergeSort(orders, "amount"); // ✅ algorithm used here
+//     res.json(sortedOrders);
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// });
+// // Example: sorted orders by amount
+// router.get("/sorted-orders", async (req, res) => {
+//   try {
+//     const orders = await Order.find({});
+//     const sortedOrders = mergeSort(orders, "amount"); // ✅ algorithm applied
+//     res.json(sortedOrders);
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// });
+
 
 export default dashboardRouter;
