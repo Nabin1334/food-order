@@ -4,6 +4,8 @@ import "./navbar.css" // Importing the CSS file for styling
 import { assets } from '../../assets/assets' // Importing assets for the navbar
 import { Link, useNavigate } from 'react-router-dom' // Importing Link from react-router-dom for routing
 import { StoreContext } from '../../context/StoreContext'
+import UnifiedAuth from "../UnifiedAuth/UnifiedAuth"
+
 const Navbar = ({setShowLogin} ) => {
 
   const [menu, setMenu] = useState("menu"); // State to manage the menu toggle
