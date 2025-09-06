@@ -1,84 +1,130 @@
-import { useState, useContext } from "react"
-import { useNavigate } from "react-router-dom"
-import { StoreContext } from "../../context/StoreContext"
-import axios from "axios"
-import "./UnifiedAuth.css"
+import { useState, useContext, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { StoreContext } from "../../context/StoreContext";
+import axios from "axios";
+import "./UnifiedAuth.css";
 
 const UnifiedAuth = ({ setShowAuth, initialType = "user" }) => {
-  const { url, setToken, setUser } = useContext(StoreContext)
-  const navigate = useNavigate()
+  const { url, setToken, setUser } = useContext(StoreContext);
+  const navigate = useNavigate();
 
-  const [authState, setAuthState] = useState("Login")
-  const [loginType, setLoginType] = useState(initialType) // 'user' or 'admin'
-  const [loading, setLoading] = useState(false)
+  const [authState, setAuthState] = useState("Login");
+  const [loginType, setLoginType] = useState(initialType); // 'user' or 'admin'
+  const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
-  })
+  });
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setLoginType(initialType);
+  }, [initialType]);
 
   const onChangeHandler = (event) => {
-    const name = event.target.name
-    const value = event.target.value
-    setData((data) => ({ ...data, [name]: value }))
-  }
+    const name = event.target.name;
+    const value = event.target.value;
+    setData((d) => ({ ...d, [name]: value }));
+  };
 
   const onSubmit = async (event) => {
-    event.preventDefault()
-    setLoading(true)
+    event.preventDefault();
+    setLoading(true);
+    setError("");
 
     // Validation
     if (authState === "Sign Up" && data.password !== data.confirmPassword) {
-      alert("Passwords don't match!")
-      setLoading(false)
-      return
+      setError("Passwords don't match!");
+      setLoading(false);
+      return;
     }
 
-    let newUrl = url
+    if (!url) {
+      setError("Server URL not configured.");
+      setLoading(false);
+      return;
+    }
+
+    let newUrl = url;
     if (authState === "Login") {
-      newUrl += "/api/user/login"
+      newUrl += "/api/user/login";
     } else {
-      newUrl += "/api/user/register"
+      newUrl += "/api/user/register";
     }
 
     try {
       const requestData = {
-        ...data,
-        loginType: loginType,
+        name: data.name,
+        email: data.email,
+        password: data.password,
         role: authState === "Sign Up" ? loginType : undefined,
-      }
+        loginType: loginType,
+      };
 
-      const response = await axios.post(newUrl, requestData)
+      const response = await axios.post(newUrl, requestData);
 
-      if (response.data.success) {
-        setToken(response.data.token)
-        setUser(response.data.user)
-        localStorage.setItem("token", response.data.token)
-        localStorage.setItem("userRole", response.data.user.role)
+      if (response?.data?.success) {
+        setToken(response.data.token);
+        setUser(response.data.user);
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("userRole", response.data.user.role);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
 
-        setShowAuth(false)
+        // close modal
+        setShowAuth(false);
 
         // Redirect based on role
         if (response.data.user.role === "admin") {
-          window.location.href = "http://localhost:5174" // Admin panel URL
+          // open admin panel
+          window.location.href = "http://localhost:5174";
         } else {
-          navigate("/")
+          navigate("/");
         }
       } else {
-        alert(response.data.message)
+        setError(response?.data?.message || "Authentication failed.");
       }
-    } catch (error) {
-      console.error("Auth error:", error)
-      alert("Authentication failed. Please try again.")
+    } catch (err) {
+      console.error("Auth error:", err);
+      setError(
+        err?.response?.data?.message ||
+          "Authentication failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setLoading(false)
-  }
+  // Close on overlay click or Escape
+  const onOverlayClick = (e) => {
+    // close only if user clicked overlay (not inside container)
+    if (
+      e.target.classList &&
+      e.target.classList.contains("unified-auth-overlay")
+    ) {
+      setShowAuth(false);
+    }
+  };
+
+  const escHandler = useCallback(
+    (e) => {
+      if (e.key === "Escape") setShowAuth(false);
+    },
+    [setShowAuth]
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", escHandler);
+    return () => document.removeEventListener("keydown", escHandler);
+  }, [escHandler]);
 
   return (
-    <div className="unified-auth-overlay">
-      <div className="unified-auth-container">
+    <div className="unified-auth-overlay" onClick={onOverlayClick}>
+      <div
+        className="unified-auth-container"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="auth-header">
           <h2>
             {authState} as {loginType === "admin" ? "Admin" : "User"}
@@ -89,11 +135,17 @@ const UnifiedAuth = ({ setShowAuth, initialType = "user" }) => {
         </div>
 
         <div className="auth-type-selector">
-          <button className={loginType === "user" ? "active" : ""} onClick={() => setLoginType("user")}>
+          <button
+            className={loginType === "user" ? "active" : ""}
+            onClick={() => setLoginType("user")}
+          >
             <i className="fas fa-user"></i>
             User Login
           </button>
-          <button className={loginType === "admin" ? "active" : ""} onClick={() => setLoginType("admin")}>
+          <button
+            className={loginType === "admin" ? "active" : ""}
+            onClick={() => setLoginType("admin")}
+          >
             <i className="fas fa-user-shield"></i>
             Admin Login
           </button>
@@ -152,9 +204,30 @@ const UnifiedAuth = ({ setShowAuth, initialType = "user" }) => {
             </div>
           )}
 
-          <button type="submit" className="auth-submit-btn" disabled={loading}>
-            {loading ? <div className="loading-spinner"></div> : authState === "Sign Up" ? "Create Account" : "Login"}
-          </button>
+          {error && <div className="auth-error">{error}</div>}
+
+          <div className="auth-actions">
+            <button
+              type="button"
+              className="auth-back-btn"
+              onClick={() => setShowAuth(false)}
+            >
+              Back
+            </button>
+            <button
+              type="submit"
+              className="auth-submit-btn"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="loading-spinner"></div>
+              ) : authState === "Sign Up" ? (
+                "Create Account"
+              ) : (
+                "Login"
+              )}
+            </button>
+          </div>
         </form>
 
         <div className="auth-switch">
@@ -179,7 +252,7 @@ const UnifiedAuth = ({ setShowAuth, initialType = "user" }) => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default UnifiedAuth
+export default UnifiedAuth;

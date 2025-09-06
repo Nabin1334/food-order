@@ -1,41 +1,42 @@
-"use client"
+"use client";
 
-import { useContext, useState } from "react"
-import "./Navbar.css"
-import { assets } from "../../assets/assets"
-import { Link, useNavigate } from "react-router-dom"
-import { StoreContext } from "../../context/StoreContext"
-import UnifiedAuth from "../UnifiedAuth/UnifiedAuth"
+import { useContext, useState } from "react";
+import "./Navbar.css";
+import { assets } from "../../assets/assets";
+import { Link, useNavigate } from "react-router-dom";
+import { StoreContext } from "../../context/StoreContext";
+import UnifiedAuth from "../UnifiedAuth/UnifiedAuth";
 
 const Navbar = ({ setShowLogin }) => {
-  const [menu, setMenu] = useState("home")
-  const [showAuth, setShowAuth] = useState(false)
-  const [authType, setAuthType] = useState("user")
+  const [menu, setMenu] = useState("home");
+  const [showAuth, setShowAuth] = useState(false);
+  const [authType, setAuthType] = useState("user");
 
-  const { getTotalCartAmount, getCartCount, token, setToken, user } = useContext(StoreContext)
+  const { getTotalCartAmount, getCartCount, token, setToken, user } =
+    useContext(StoreContext);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const logout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("userRole")
-    localStorage.removeItem("user")
-    setToken("")
-    navigate("/")
-  }
+    localStorage.removeItem("token");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("user");
+    setToken("");
+    navigate("/");
+  };
 
   const handleClick = () => {
     if (!token) {
-      setShowLogin(true)
+      setShowLogin(true);
     } else {
-      navigate("/myorders")
+      navigate("/myorders");
     }
-  }
+  };
 
   const handleAuthClick = (type) => {
-    setAuthType(type)
-    setShowAuth(true)
-  }
+    setAuthType(type);
+    setShowAuth(true);
+  };
 
   return (
     <>
@@ -47,10 +48,18 @@ const Navbar = ({ setShowLogin }) => {
         </Link>
 
         <ul className="navbar-menu">
-          <Link to="/" onClick={() => setMenu("home")} className={menu === "home" ? "active" : ""}>
+          <Link
+            to="/"
+            onClick={() => setMenu("home")}
+            className={menu === "home" ? "active" : ""}
+          >
             Home
           </Link>
-          <a href="#explore-menu" onClick={() => setMenu("menu")} className={menu === "menu" ? "active" : ""}>
+          <a
+            href="#explore-menu"
+            onClick={() => setMenu("menu")}
+            className={menu === "menu" ? "active" : ""}
+          >
             Menu
           </a>
           <a
@@ -60,7 +69,11 @@ const Navbar = ({ setShowLogin }) => {
           >
             Mobile-app
           </a>
-          <a href="#footer" onClick={() => setMenu("contact-us")} className={menu === "contact-us" ? "active" : ""}>
+          <a
+            href="#footer"
+            onClick={() => setMenu("contact-us")}
+            className={menu === "contact-us" ? "active" : ""}
+          >
             Contact us
           </a>
         </ul>
@@ -70,18 +83,26 @@ const Navbar = ({ setShowLogin }) => {
           <div className="navbar-search-icon">
             <Link to="/cart">
               <img src={assets.basket_icon || "/placeholder.svg"} alt="" />
-              {getCartCount && getCartCount() > 0 && <span className="cart-count">{getCartCount()}</span>}
+              {getCartCount && getCartCount() > 0 && (
+                <span className="cart-count">{getCartCount()}</span>
+              )}
             </Link>
             <div className={getTotalCartAmount() === 0 ? "" : "dot"}></div>
           </div>
 
           {!token ? (
             <div className="auth-buttons">
-              <button className="user-login-btn" onClick={() => handleAuthClick("user")}>
+              <button
+                className="user-login-btn"
+                onClick={() => handleAuthClick("user")}
+              >
                 <img src={assets.profile_icon || "/placeholder.svg"} alt="" />
                 Sign In
               </button>
-              <button className="admin-login-btn" onClick={() => handleAuthClick("admin")}>
+              <button
+                className="admin-login-btn"
+                onClick={() => handleAuthClick("admin")}
+              >
                 <i className="fas fa-user-shield"></i>
                 Admin
               </button>
@@ -90,12 +111,18 @@ const Navbar = ({ setShowLogin }) => {
             <div className="navbar-profile">
               <img src={assets.profile_icon || "/placeholder.svg"} alt="" />
               <span className="user-name">{user?.name}</span>
-              {user?.role === "admin" && <span className="admin-badge">Admin</span>}
+              {user?.role === "admin" && (
+                <span className="admin-badge">Admin</span>
+              )}
 
               <ul className="nav-profile-dropdown">
                 {user?.role === "admin" && (
                   <>
-                    <li onClick={() => window.open("http://localhost:5174", "_blank")}>
+                    <li
+                      onClick={() =>
+                        window.open("http://localhost:5174", "_blank")
+                      }
+                    >
                       <img src={assets.bag_icon || "/placeholder.svg"} alt="" />
                       <p>Admin Panel</p>
                     </li>
@@ -117,9 +144,12 @@ const Navbar = ({ setShowLogin }) => {
         </div>
       </div>
 
-      {showAuth && <UnifiedAuth setShowLogin={setShowAuth} initialType={authType} />}
+      {showAuth && (
+        // Pass correct prop name so UnifiedAuth can control visibility
+        <UnifiedAuth setShowAuth={setShowAuth} initialType={authType} />
+      )}
     </>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
