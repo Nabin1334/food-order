@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { StoreContext } from "../../context/StoreContext"
@@ -63,7 +61,7 @@ const UnifiedAuth = ({ setShowAuth, initialType = "user" }) => {
 
         // Redirect based on role
         if (response.data.user.role === "admin") {
-          window.location.href = "http://localhost:5173" // Admin panel URL
+          window.location.href = "http://localhost:5174" // Admin panel URL
         } else {
           navigate("/")
         }
