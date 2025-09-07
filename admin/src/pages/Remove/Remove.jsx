@@ -9,38 +9,75 @@ const Remove = ({ url }) => {
   const [list, setList] = useState([])
   const [loading, setLoading] = useState(false)
   const [selectedItems, setSelectedItems] = useState([])
+  const [error, setError] = useState(null)
 
   const fetchList = async () => {
     setLoading(true)
+    setError(null)
     try {
+      console.log("Fetching from URL:", `${url}/api/food/list`)
       const response = await axios.get(`${url}/api/food/list`)
-      console.log("Response from backend:", response)
-      if (response.data.success) {
-        setList(response.data.data)
+      console.log("Full response:", response)
+
+      if (response.data && response.data.success) {
+        setList(response.data.data || [])
+        console.log("Food items loaded:", response.data.data?.length || 0)
       } else {
-        toast.error(response.data.message || "Error fetching food items")
+        const errorMsg = response.data?.message || "Failed to fetch food items"
+        setError(errorMsg)
+        toast.error(errorMsg)
       }
     } catch (error) {
-      console.error("Fetch error:", error)
-      toast.error("Failed to fetch food items")
+      console.error("Fetch error details:", error)
+      const errorMsg = error.response?.data?.message || error.message || "Network error occurred"
+      setError(errorMsg)
+      toast.error(`Failed to fetch food items: ${errorMsg}`)
     }
     setLoading(false)
   }
 
   const removeFood = async (foodId, foodName) => {
+    if (!foodId) {
+      toast.error("Invalid food ID")
+      return
+    }
+
     if (window.confirm(`Are you sure you want to remove "${foodName}"?`)) {
       try {
-        // Use POST method with ID in request body (matching your backend)
-        const response = await axios.post(`${url}/api/food/remove`, { id: foodId })
-        if (response.data.success) {
+        console.log("Removing food with ID:", foodId)
+        console.log("Remove URL:", `${url}/api/food/remove`)
+
+        const response = await axios.post(
+          `${url}/api/food/remove`,
+          {
+            id: foodId,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        )
+
+        console.log("Remove response:", response)
+
+        if (response.data && response.data.success) {
           toast.success(response.data.message || "Food item removed successfully")
-          await fetchList() // Refresh the list
+          // Remove from local state immediately for better UX
+          setList((prevList) => prevList.filter((item) => item._id !== foodId))
+          // Also remove from selected items if it was selected
+          setSelectedItems((prev) => prev.filter((id) => id !== foodId))
+          // Refresh the list to ensure consistency
+          await fetchList()
         } else {
-          toast.error(response.data.message || "Error removing food item")
+          const errorMsg = response.data?.message || "Failed to remove food item"
+          toast.error(errorMsg)
+          console.error("Remove failed:", response.data)
         }
       } catch (error) {
-        console.error("Remove error:", error)
-        toast.error("Failed to remove food item")
+        console.error("Remove error details:", error)
+        const errorMsg = error.response?.data?.message || error.message || "Network error"
+        toast.error(`Failed to remove food item: ${errorMsg}`)
       }
     }
   }
@@ -57,21 +94,62 @@ const Remove = ({ url }) => {
 
     if (window.confirm(`Are you sure you want to remove ${selectedItems.length} items?`)) {
       try {
+        let successCount = 0
+        let errorCount = 0
+
         for (const itemId of selectedItems) {
-          await axios.post(`${url}/api/food/remove`, { id: itemId })
+          try {
+            const response = await axios.post(
+              `${url}/api/food/remove`,
+              {
+                id: itemId,
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              },
+            )
+
+            if (response.data && response.data.success) {
+              successCount++
+            } else {
+              errorCount++
+              console.error(`Failed to remove item ${itemId}:`, response.data)
+            }
+          } catch (error) {
+            errorCount++
+            console.error(`Error removing item ${itemId}:`, error)
+          }
         }
-        toast.success(`${selectedItems.length} items removed successfully`)
+
+        if (successCount > 0) {
+          toast.success(`${successCount} items removed successfully`)
+        }
+        if (errorCount > 0) {
+          toast.error(`${errorCount} items failed to remove`)
+        }
+
         setSelectedItems([])
         await fetchList()
       } catch (error) {
         console.error("Bulk delete error:", error)
-        toast.error("Error removing items")
+        toast.error("Error during bulk deletion")
       }
+    }
+  }
+
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedItems(list.map((item) => item._id))
+    } else {
+      setSelectedItems([])
     }
   }
 
   useEffect(() => {
     if (!url) {
+      setError("API URL is not configured")
       toast.error("API URL is not set")
       return
     }
@@ -89,6 +167,22 @@ const Remove = ({ url }) => {
     )
   }
 
+  if (error && list.length === 0) {
+    return (
+      <div className="remove error">
+        <div className="error-message">
+          <i className="fas fa-exclamation-triangle"></i>
+          <h3>Error Loading Data</h3>
+          <p>{error}</p>
+          <button onClick={fetchList} className="retry-btn">
+            <i className="fas fa-redo"></i>
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="remove">
       <div className="remove-header">
@@ -100,7 +194,10 @@ const Remove = ({ url }) => {
               Delete Selected ({selectedItems.length})
             </button>
           )}
-          <p>Click on items to select them for bulk deletion</p>
+          <button onClick={fetchList} className="refresh-btn">
+            <i className="fas fa-sync-alt"></i>
+            Refresh
+          </button>
         </div>
       </div>
 
@@ -117,15 +214,9 @@ const Remove = ({ url }) => {
               <input
                 type="checkbox"
                 checked={selectedItems.length === list.length && list.length > 0}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setSelectedItems(list.map((item) => item._id))
-                  } else {
-                    setSelectedItems([])
-                  }
-                }}
+                onChange={(e) => handleSelectAll(e.target.checked)}
               />
-              Select All
+              Select All ({list.length})
             </span>
             <span>Image</span>
             <span>Name</span>
@@ -138,9 +229,8 @@ const Remove = ({ url }) => {
           <div className="remove-items">
             {list.map((item, index) => (
               <div
-                key={index}
+                key={item._id || index}
                 className={`remove-item ${selectedItems.includes(item._id) ? "selected" : ""}`}
-                onClick={() => handleSelectItem(item._id)}
               >
                 <div className="item-checkbox">
                   <input
@@ -179,10 +269,15 @@ const Remove = ({ url }) => {
 
                 <div className="item-price">
                   <span>Rs.{item.price}</span>
+                  {item.discount > 0 && <span className="discount">-{item.discount}%</span>}
                 </div>
 
                 <div className="item-orders">
                   <span>{item.orderCount || 0} orders</span>
+                  <div className="rating">
+                    <i className="fas fa-star"></i>
+                    <span>{item.rating || 0}</span>
+                  </div>
                 </div>
 
                 <div className="item-action">
