@@ -40,7 +40,6 @@ const listFood = async (req, res) => {
 
 const removeFood = async (req, res) => {
   try {
-    console.log( "this is the id camefrom frontend:",req.params.foodId)
     const food = await foodModel.findById(req.params.foodId);
     if (!food) {
       return res.json({ success: false, message: "Food item not found" });
@@ -57,7 +56,7 @@ const removeFood = async (req, res) => {
     
 
     // Delete food from DB
-    await foodModel.findByIdAndDelete(req.params.id);
+    await foodModel.findByIdAndDelete(req.params.foodId);
     res.json({ success: true, message: "Food item removed successfully" });
   } catch (error) {
     console.error("Remove error:", error.message);
